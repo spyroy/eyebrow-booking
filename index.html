@@ -1,91 +1,84 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>זימון תורים - עיצוב גבות</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f4f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        h1 {
-            text-align: center;
-            color: #5a3e36;
-        }
-        label {
-            font-weight: bold;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        button {
-            background-color: #5a3e36;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #402b25;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>זימון תורים - עיצוב גבות</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f4f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+h1 { text-align: center; color: #5a3e36; }
+label { font-weight: bold; }
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+button {
+    background-color: #5a3e36;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+button:hover { background-color: #402b25; }
+</style>
 </head>
 <body>
 
 <div class="container">
-    <h1>זימון תור</h1>
+<h1>זימון תור</h1>
 
-    <form id="bookingForm">
-        <label>שם מלא</label>
-        <input type="text" id="name">
+<form id="bookingForm">
+    <label>שם מלא</label>
+    <input type="text" id="name">
 
-        <label>טלפון</label>
-        <input type="tel" id="phone">
+    <label>טלפון</label>
+    <input type="tel" id="phone">
 
-        <label>בחר שירות</label>
-        <select id="service">
-            <option>עיצוב גבות</option>
-            <option>שפם</option>
-            <option>ריסים</option>
-        </select>
+    <label>בחר שירות</label>
+    <select id="service">
+        <option>עיצוב גבות</option>
+        <option>שפם</option>
+        <option>ריסים</option>
+    </select>
 
-        <label>בחר תאריך</label>
-        <input type="date" id="date">
+    <label>בחר תאריך</label>
+    <input type="date" id="date">
 
-        <label>בחר שעה</label>
-        <select id="time" required></select>
+    <label>בחר שעה</label>
+    <select id="time" required></select>
 
-        <button type="submit">קבע תור</button>
-    </form>
+    <button type="submit">קבע תור</button>
+</form>
 
-    <button type="button" onclick="adminLogin()" style="background:black; margin-bottom:15px;">
-        כניסת מנהל
-    </button>
+<button type="button" onclick="adminLogin()" style="background:black; margin-bottom:15px;">
+    כניסת מנהל
+</button>
 
-    <div id="adminPanel" style="display:none;">
-        <h2>תורים שנקבעו</h2>
-        <ul id="appointmentsList"></ul>
-    </div>
+<div id="adminPanel" style="display:none;">
+    <h2>תורים שנקבעו</h2>
+    <ul id="appointmentsList"></ul>
+</div>
 </div>
 
 <!-- Firebase -->
@@ -93,7 +86,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Firebase config
+// Firebase config שלך
 const firebaseConfig = {
     apiKey: "AIzaSyDLkCtj1IUWP_x86FyLDSDc2CHEvDjfbhs",
     authDomain: "eyebrow-booking.firebaseapp.com",
@@ -109,17 +102,10 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // משתנים
-const serviceDurations = {
-    "עיצוב גבות": 0.5,
-    "שפם": 0.5,
-    "ריסים": 2
-};
-
-const allTimes = [
-    "09:00","09:30","10:00","10:30","11:00","11:30",
-    "12:00","12:30","13:00","13:30","14:00","14:30",
-    "15:00","15:30","16:00","16:30","17:00","17:30","18:00"
-];
+const serviceDurations = { "עיצוב גבות": 0.5, "שפם": 0.5, "ריסים": 2 };
+const allTimes = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30",
+                  "13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30",
+                  "17:00","17:30","18:00"];
 
 const form = document.getElementById("bookingForm");
 const nameInput = document.getElementById("name");
@@ -129,21 +115,22 @@ const dateInput = document.getElementById("date");
 const timeSelect = document.getElementById("time");
 const appointmentsList = document.getElementById("appointmentsList");
 
-// עדכון שעות זמינות לפי טיפול
+// פונקציה המחשבת זמני התחלה
+const timeInMinutes = t => t.split(":").map(Number).reduce((h,m)=>h*60+m,0);
+
+// עדכון זמינות לפי תאריך ושירות
 function updateAvailableTimes() {
     const selectedDate = dateInput.value;
     const selectedService = serviceSelect.value;
     timeSelect.innerHTML = '<option value="">בחר שעה</option>';
-    if (!selectedDate) return;
+    if(!selectedDate) return;
 
     const appointmentsRef = ref(database, 'appointments');
-    onValue(appointmentsRef, (snapshot) => {
+    onValue(appointmentsRef, snapshot => {
         const data = snapshot.val() || {};
         const takenTimes = Object.values(data)
             .filter(a => a.date === selectedDate)
-            .map(a => ({ time: a.time, duration: serviceDurations[a.service] }));
-
-        const timeInMinutes = t => t.split(":").map(Number).reduce((h,m)=>h*60+m,0);
+            .map(a => ({time: a.time, duration: serviceDurations[a.service]}));
 
         allTimes.forEach(time => {
             const start = timeInMinutes(time);
@@ -156,18 +143,18 @@ function updateAvailableTimes() {
                 return start < aEnd && end > aStart;
             });
 
-            if (!overlap) {
+            if(!overlap){
                 const option = document.createElement("option");
                 option.value = time;
                 option.textContent = time;
                 timeSelect.appendChild(option);
             }
         });
-    }, { onlyOnce: true });
+    }, {onlyOnce:true});
 }
 
 // שמירת תור ב-Firebase
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", e => {
     e.preventDefault();
     const name = nameInput.value.trim();
     const phone = phoneInput.value.trim();
@@ -177,7 +164,7 @@ form.addEventListener("submit", (e) => {
     const today = new Date();
     const selectedDate = new Date(date);
 
-    // ולידציות
+    // ולידציות בעברית
     if(name.length < 2){ alert("שם חייב להכיל לפחות 2 תווים"); return; }
     if(!/^05\d{8}$/.test(phone)){ alert("מספר טלפון לא תקין. יש להזין 10 ספרות שמתחילות ב-05"); return; }
     if(!service){ alert("יש לבחור שירות"); return; }
@@ -187,12 +174,16 @@ form.addEventListener("submit", (e) => {
 
     const appointmentsRef = ref(database, 'appointments');
     push(appointmentsRef, { name, phone, service, date, time })
-        .then(()=> { alert("התור נשמר בהצלחה!"); form.reset(); updateAvailableTimes(); });
+        .then(()=> { 
+            alert("התור נשמר בהצלחה!"); 
+            form.reset(); 
+            updateAvailableTimes(); 
+        });
 });
 
-// הצגת תורים + מחיקה
+// הצגת תורים בזמן אמת עם אפשרות מחיקה
 const appointmentsRef = ref(database, 'appointments');
-onValue(appointmentsRef, (snapshot) => {
+onValue(appointmentsRef, snapshot => {
     appointmentsList.innerHTML = "";
     const data = snapshot.val() || {};
     Object.keys(data).forEach(key => {
@@ -200,7 +191,8 @@ onValue(appointmentsRef, (snapshot) => {
         const li = document.createElement("li");
         li.innerHTML = `
             ${app.date} ${app.time} - ${app.name} | ${app.phone} | ${app.service}
-            <button onclick="deleteAppointment('${key}')" style="margin-right:10px;background:red;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;">
+            <button onclick="deleteAppointment('${key}')" 
+                style="margin-right:10px;background:red;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;">
                 מחק
             </button>
         `;
@@ -209,7 +201,7 @@ onValue(appointmentsRef, (snapshot) => {
 });
 
 // פונקציית מחיקה
-window.deleteAppointment = function(key) {
+window.deleteAppointment = function(key){
     if(confirm("האם אתה בטוח שברצונך למחוק את התור?")){
         remove(ref(database,'appointments/'+key));
         updateAvailableTimes();
@@ -228,7 +220,6 @@ window.adminLogin = function(){
         alert("כניסה מוצלחת");
     } else { alert("סיסמה שגויה"); }
 }
-
 </script>
 </body>
 </html>
