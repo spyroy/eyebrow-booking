@@ -84,9 +84,9 @@ button:hover { background-color: #402b25; }
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, push, get, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Firebase config שלך
+// Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyDLkCtj1IUWP_x86FyLDSDc2CHEvDjfbhs",
     authDomain: "eyebrow-booking.firebaseapp.com",
@@ -115,10 +115,10 @@ const dateInput = document.getElementById("date");
 const timeSelect = document.getElementById("time");
 const appointmentsList = document.getElementById("appointmentsList");
 
-// פונקציה המחשבת זמני התחלה
+// פונקציה לחישוב זמן בדקות
 const timeInMinutes = t => t.split(":").map(Number).reduce((h,m)=>h*60+m,0);
 
-// עדכון זמינות לפי תאריך ושירות
+// עדכון זמינות שעות לפי תאריך ושירות
 function updateAvailableTimes() {
     const selectedDate = dateInput.value;
     const selectedService = serviceSelect.value;
@@ -126,7 +126,7 @@ function updateAvailableTimes() {
     if(!selectedDate) return;
 
     const appointmentsRef = ref(database, 'appointments');
-    onValue(appointmentsRef, snapshot => {
+    get(appointmentsRef).then(snapshot => {
         const data = snapshot.val() || {};
         const takenTimes = Object.values(data)
             .filter(a => a.date === selectedDate)
@@ -150,7 +150,7 @@ function updateAvailableTimes() {
                 timeSelect.appendChild(option);
             }
         });
-    }, {onlyOnce:true});
+    });
 }
 
 // שמירת תור ב-Firebase
@@ -181,7 +181,7 @@ form.addEventListener("submit", e => {
         });
 });
 
-// הצגת תורים בזמן אמת עם אפשרות מחיקה
+// הצגת תורים בזמן אמת + מחיקה
 const appointmentsRef = ref(database, 'appointments');
 onValue(appointmentsRef, snapshot => {
     appointmentsList.innerHTML = "";
