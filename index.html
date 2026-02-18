@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>זימון תורים - עיצוב גבות</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f4f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5a3e36;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #5a3e36;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #402b25;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>זימון תור</h1>
+
+        <form>
+            <label>שם מלא</label>
+            <input type="text" >
+
+            <label>טלפון</label>
+            <input type="tel">
+
+            <label>בחר שירות</label>
+            <select id="service">
+                <option>עיצוב גבות</option>
+                <option>שפם</option>
+                <option>ריסים</option>
+            </select>
+
+            <label>בחר תאריך</label>
+            <input type="date" >
+
+            <label>בחר שעה</label>
+            <select id="time" required>
+            </select>
+
+            <button type="submit">קבע תור</button>
+        </form>
+        <button type="button" onclick="adminLogin()" style="background:black;">
+             כניסת מנהל
+        </button>
+        <div id="adminPanel" style="display:none;">
+            <h2>תורים שנקבעו</h2>
+            <ul id="appointmentsList"></ul>
+        </div>
+    </div>
+
+    <script>
+
+    const serviceDurations = {
+    "עיצוב גבות": 0.5,  // חצי שעה
+    "שפם": 0.5,
+    "ריסים": 2           // שתי שעות
+    };
+
+    const form = document.querySelector("form");
+
+    function getAppointments() {
+        return JSON.parse(localStorage.getItem("appointments")) || [];
+    }
+
+    function saveAppointments(appointments) {
+        localStorage.setItem("appointments", JSON.stringify(appointments));
+    }
+
+    function renderAppointments() {
+        const list = document.getElementById("appointmentsList");
+        list.innerHTML = "";
+
+        const appointments = getAppointments();
+
+        appointments.forEach((app, index) => {
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                ${app.date} ${app.time} - ${app.name} | ${app.phone} | ${app.service}
+                <button onclick="deleteAppointment(${index})" style="margin-right:10px;background:red;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;">
+                    מחק
+                </button>
+            `;
+
+            list.appendChild(li);
+        });
+    }
+
+    function deleteAppointment(index) {
+        const appointments = getAppointments();
+
+        if (confirm("האם אתה בטוח שברצונך למחוק את התור?")) {
+            appointments.splice(index, 1);
+            saveAppointments(appointments);
+            renderAppointments();
+            updateAvailableTimes(); // רענון השעות
+        }
+    }
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = document.querySelector('input[type="text"]').value;
+        const phone = document.querySelector('input[type="tel"]').value;
+        const service = document.querySelector('select').value;
+        const date = document.querySelector('input[type="date"]').value;
+        const time = document.querySelectorAll('select')[1].value;
+        const today = new Date();
+        const selectedDate = new Date(date);
+
+        // ולידציות בעברית
+        if (name.length < 2) {
+            alert("שם חייב להכיל לפחות 2 תווים");
+            return;
+        }
+
+        if (!/^05\d{8}$/.test(phone)) {
+            alert("מספר טלפון לא תקין. יש להזין 10 ספרות שמתחילות ב-05");
+            return;
+        }
+
+        if (!service) {
+            alert("יש לבחור שירות");
+            return;
+        }
+
+        if (!date) {
+            alert("יש לבחור תאריך");
+            return;
+        }
+
+        if (selectedDate < today.setHours(0,0,0,0)) {
+            alert("התאריך חייב להיות תאריך עתידי");
+            return;
+        }
+
+        if (!time) {
+            alert("יש לבחור שעה");
+            return;
+        }
+
+        const appointments = getAppointments();
+
+        appointments.push({
+            name,
+            phone,
+            service,
+            date,
+            time
+        });
+
+        saveAppointments(appointments);
+
+        renderAppointments(); // ← עכשיו מתעדכן מייד
+
+        alert("התור נשמר בהצלחה!");
+
+        form.reset();
+    });
+
+    // טעינה ראשונית
+    renderAppointments();
+
+    const allTimes = [
+    "09:00","09:30","10:00","10:30","11:00","11:30",
+    "12:00","12:30","13:00","13:30","14:00","14:30",
+    "15:00","15:30","16:00","16:30","17:00","17:30","18:00"
+    ];
+
+    const timeSelect = document.getElementById("time");
+    const dateInput = document.querySelector('input[type="date"]');
+
+    function updateAvailableTimes() {
+        const selectedDate = dateInput.value;
+        timeSelect.innerHTML = '<option value="">בחר שעה</option>';
+        if (!selectedDate) return;
+
+        const appointments = getAppointments();
+        const takenTimes = appointments
+            .filter(a => a.date === selectedDate)
+            .map(a => ({time: a.time, duration: serviceDurations[a.service]}));
+
+        // מיון זמני התחלה
+        const timeInMinutes = t => {
+            const [h,m] = t.split(":").map(Number);
+            return h*60 + m;
+        }
+
+        allTimes.forEach(time => {
+            // בדיקה אם אפשר לבצע את הטיפול כולו
+            const selectedService = document.getElementById("service").value;
+            const durationHours = serviceDurations[selectedService];
+            const durationMinutes = durationHours*60;
+
+            const start = timeInMinutes(time);
+            const end = start + durationMinutes;
+
+            const overlap = takenTimes.some(a => {
+                const aStart = timeInMinutes(a.time);
+                const aEnd = aStart + a.duration*60;
+                return (start < aEnd && end > aStart);  // חפיפה
+            });
+
+            if (!overlap) {
+                const option = document.createElement("option");
+                option.value = time;
+                option.textContent = time;
+                timeSelect.appendChild(option);
+            }
+        });
+    }
+
+    // עדכון שעות כשמשנים תאריך
+    dateInput.addEventListener("change", updateAvailableTimes);
+    document.getElementById("service").addEventListener("change", updateAvailableTimes);
+
+
+    function adminLogin() {
+        const password = prompt("הכנס סיסמת מנהל:");
+
+        if (password === "1234") {   // אתה יכול לשנות סיסמה
+            document.getElementById("adminPanel").style.display = "block";
+            alert("כניסה מוצלחת");
+        } else {
+            alert("סיסמה שגויה");
+        }
+    }
+    
+    </script>
+</body>
+</html>
